@@ -1,6 +1,4 @@
 export const errorHandler = (err, req, res, next) => {
-  console.error("Error caught in global error handler:", err);
-
   if (err.name === "SequelizeValidationError") {
     // Handle validation errors
     const validationErrors = err.errors.map((error) => ({

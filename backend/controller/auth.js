@@ -2,6 +2,7 @@ import db from "../model/index.js";
 const User = db.user;
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/token.js";
+import { hasPermission } from "../utils/permission.js";
 
 export const registerCorporate = async (req, res, next) => {
   const activationCode = req.activationCode;
@@ -108,7 +109,6 @@ export const resetPassword = async (req, res, next) => {
 };
 export const activateUser = async (req, res, next) => {
   let { actcode } = req.params;
-  console.log(actcode);
   try {
     const doesCodeExist = await User.findOne({ where: { actcode } });
     if (!doesCodeExist) {
@@ -134,7 +134,6 @@ export const activateUser = async (req, res, next) => {
 
 export const updateCorporateIdentity = async (req, res, next) => {
   const { RCNo, CAC, utility } = req.body;
-  console.log(RCNo, CAC, utility);
   const { organizationid } = req.params;
 
   try {
@@ -197,5 +196,139 @@ export const updatecorporatecontact = async (req, res, next) => {
     return res.status(200).json({ message: "updated successfully" });
   } catch (error) {
     next(error);
+  }
+};
+export const getCorporates = async (req, res) => {
+  if (hasPermission(req.user.roles)) {
+    let corporates = await User.findAll({
+      where: {
+        verifiedorgstatus: true,
+        accountactivated: true,
+      },
+      attributes: ["organizationid", "companyname"],
+    });
+    res.status(200).send(corporates);
+  } else {
+    //res.status(403).send({ message: "permission denied" });
+  }
+};
+
+export const deactivateUser = async (req, res, next) => {
+  const { userid } = req.params;
+  let ownerspermission = req.user.roles.includes("product_owner");
+
+  try {
+    // Check if the user is active
+    const isActiveUser = await User.findOne({
+      where: {
+        organizationid: req.user.orgid,
+        accountactivated: true,
+      },
+    });
+
+    if (!isActiveUser) {
+      return res.status(403).json({
+        message: "Only active users are allowed to deactivate users",
+      });
+    }
+
+    // Check if the department belongs to the user's organization
+    const userz = await User.findOne({
+      where: {
+        organizationId: req.user.orgid,
+        userid: userid,
+      },
+    });
+
+    if (!userz && !ownerspermission) {
+      return res.status(403).json({
+        message:
+          "You are only permitted to deactivate users within your organization.",
+      });
+    }
+
+    // Check if the user has permission to deactivate departments
+    const isPermitted = hasPermission(req.user.roles);
+
+    if (!isPermitted) {
+      return res.status(403).json({
+        message: "You do not have permission to deactivate users.",
+      });
+    }
+
+    // Update the department status to deactivated
+    await User.update(
+      {
+        status: "inactive", // Check if 'active' is a correct value
+      },
+      { where: { userid: userid } }
+    );
+
+    return res.status(200).json({
+      message: "user deactivated successfully.",
+    });
+  } catch (error) {
+    next(error);
+    return res.status(500).json({ message: "Error updating users." });
+  }
+};
+
+export const activateUserRole = async (req, res, next) => {
+  const { userid } = req.params;
+  let ownerspermission = req.user.roles.includes("product_owner");
+
+  try {
+    // Check if the user is active
+    const isActiveUser = await User.findOne({
+      where: {
+        organizationid: req.user.orgid,
+        accountactivated: true,
+      },
+    });
+
+    if (!isActiveUser) {
+      return res.status(403).json({
+        message: "Only active users are allowed to activate departments.",
+      });
+    }
+
+    // Check if the department belongs to the user's organization
+    const userz = await User.findOne({
+      where: {
+        organizationId: req.user.orgid,
+        userid: userid,
+      },
+    });
+
+    if (!userz && !ownerspermission) {
+      return res.status(403).json({
+        message:
+          "You are only permitted to activate departments in your organization.",
+      });
+    }
+
+    // Check if the user has permission to deactivate departments
+    const isPermitted = hasPermission(req.user.roles);
+
+    if (!isPermitted) {
+      return res.status(403).json({
+        message: "You do not have permission to activate departments.",
+      });
+    }
+
+    // Update the department status to deactivated
+    await User.update(
+      {
+        status: "active",
+      },
+      { where: { userid: userid } }
+    );
+
+    return res.status(200).json({
+      message: "user activated successfully.",
+    });
+  } catch (error) {
+    next(error);
+    return res.status(500).json({ message: "Error updating users." });
   }
 };

@@ -6,7 +6,6 @@ const Department = db.department;
 export const generateBill = async (req, res, next) => {
   const { billcode, billdescription, amount } = req.body;
   let { orgid, deptid, userid } = req.params;
-  console.log(orgid, userid);
 
   const isActiveUser = await User.findOne({
     where: {
@@ -15,7 +14,6 @@ export const generateBill = async (req, res, next) => {
       userid,
     },
   });
-  console.log(isActiveUser);
   if (!isActiveUser) {
     return res.status(403).send({
       message: "Only active users are allowed to add departments.",

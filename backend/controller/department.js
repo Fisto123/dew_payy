@@ -2,40 +2,57 @@ import db from "../model/index.js";
 import { hasPermission } from "../utils/permission.js";
 const department = db.department;
 const User = db.user;
-
-export const registerDepartment = async (req, res, next) => {
-  const { name, description } = req.body;
-  console.log("res", req.user.orgid);
-  const isActiveUser = await User.findOne({
-    where: {
-      organizationid: req.user.orgid,
-      accountactivated: true,
-    },
-  });
-
-  if (!isActiveUser) {
-    return res.status(403).send({
-      message: "Only active users are allowed to add departments.",
-    });
-  }
+const getOrganizationUserId = async (orgid) => {
   try {
+    const organizationUser = await User.findOne({
+      where: {
+        organizationid: orgid,
+      },
+    });
+
+    return organizationUser ? organizationUser.userid : "";
+  } catch (error) {
+    return "";
+  }
+};
+export const registerDepartment = async (req, res, next) => {
+  const { name, description, orgid, userid } = req.body;
+
+  try {
+    const realuserid =
+      userid === "" ? await getOrganizationUserId(orgid) : userid;
+
+    const isActiveUser = await User.findOne({
+      where: {
+        organizationid: orgid,
+        accountactivated: true,
+      },
+    });
+
+    if (!isActiveUser) {
+      return res.status(403).send({
+        message: "Only active users are allowed to add departments.",
+      });
+    }
+
     await department.create({
-      organizationId: req.user.orgid,
+      organizationId: orgid,
       name,
       description,
-      userid: req.user.id,
+      userid: realuserid,
     });
+
     return res.status(201).send({
-      message: "department added successfully",
+      message: "Department added successfully",
     });
   } catch (error) {
     next(error);
   }
 };
+
 export const editDepartment = async (req, res, next) => {
   let ownerspermission = req.user.roles.includes("product_owner");
   let corporatepermission = req.user.roles.includes("corporate_owner");
-  console.log(ownerspermission, corporatepermission);
   const { name, description } = req.body;
   let { departmentid } = req.params;
 
@@ -57,17 +74,12 @@ export const editDepartment = async (req, res, next) => {
     },
   });
 
-  if (!dept) {
+  if ((!dept && !ownerspermission) || !corporatepermission) {
     return res.status(403).json({
-      message:
-        "You are only permitted to activate departments in your organization.",
+      message: "permission denied",
     });
   }
-  if (!ownerspermission && !corporatepermission) {
-    return res.status(403).json({
-      message: "you arent allowed to edit.",
-    });
-  }
+
   try {
     await department.update(
       {
@@ -86,6 +98,7 @@ export const editDepartment = async (req, res, next) => {
 
 export const deactivateDepartment = async (req, res, next) => {
   const { departmentid } = req.params;
+  let ownerspermission = req.user.roles.includes("product_owner");
 
   try {
     // Check if the user is active
@@ -98,7 +111,7 @@ export const deactivateDepartment = async (req, res, next) => {
 
     if (!isActiveUser) {
       return res.status(403).json({
-        message: "Only active users are allowed to deactivate departments.",
+        message: "Only active users are allowed to edit departments.",
       });
     }
 
@@ -110,7 +123,7 @@ export const deactivateDepartment = async (req, res, next) => {
       },
     });
 
-    if (!dept) {
+    if (!dept && !ownerspermission) {
       return res.status(403).json({
         message:
           "You are only permitted to deactivate departments in your organization.",
@@ -118,8 +131,7 @@ export const deactivateDepartment = async (req, res, next) => {
     }
 
     // Check if the user has permission to deactivate departments
-    const isPermitted = hasPermission(isActiveUser.roles);
-
+    const isPermitted = hasPermission(req.user.roles);
     if (!isPermitted) {
       return res.status(403).json({
         message: "You do not have permission to deactivate departments.",
@@ -138,13 +150,13 @@ export const deactivateDepartment = async (req, res, next) => {
       message: "Department deactivated successfully.",
     });
   } catch (error) {
-    console.error(error);
-    next(error) ||
-      res.status(500).json({ message: "Error updating department." });
+    next(error);
+    res.status(500).json({ message: "Error updating department." });
   }
 };
 export const activateDepartment = async (req, res, next) => {
   const { departmentid } = req.params;
+  let ownerspermission = req.user.roles.includes("product_owner");
 
   try {
     // Check if the user is active
@@ -169,7 +181,7 @@ export const activateDepartment = async (req, res, next) => {
       },
     });
 
-    if (!dept) {
+    if (!dept && !ownerspermission) {
       return res.status(403).json({
         message:
           "You are only permitted to activate departments in your organization.",
@@ -177,7 +189,7 @@ export const activateDepartment = async (req, res, next) => {
     }
 
     // Check if the user has permission to deactivate departments
-    const isPermitted = hasPermission(isActiveUser.roles);
+    const isPermitted = hasPermission(req.user.roles);
 
     if (!isPermitted) {
       return res.status(403).json({
@@ -197,9 +209,8 @@ export const activateDepartment = async (req, res, next) => {
       message: "Department activated successfully.",
     });
   } catch (error) {
-    console.error(error);
-    next(error) ||
-      res.status(500).json({ message: "Error updating department." });
+    next(error);
+    return res.status(500).json({ message: "Error updating department." });
   }
 };
 
@@ -233,56 +244,78 @@ export const activateDepartment = async (req, res, next) => {
 
 export const getOrganizationsDepartment = async (req, res, next) => {
   try {
-    let ownerspermission = req.user.roles.includes("product_owner");
-    let corporatepermission = req.user.roles.includes("corporate_owner");
+    let ownersPermission = req.user.roles.includes("product_owner");
+    let corporatePermission = req.user.roles.includes("corporate_owner");
 
-    let departments = ownerspermission
-      ? await department.findAll({
-          attributes: [
-            "name",
-            "active",
-            "createdAt",
-            "description",
-            "organizationid",
-            "departmentid",
-            "organizationid",
-          ],
-          include: [
-            {
-              model: User,
-              as: "user",
-              attributes: ["companyname"],
-            },
-          ],
-        })
-      : corporatepermission
-      ? await department.findAll({
-          where: {
-            organizationid: req.user.orgid,
+    if (ownersPermission) {
+      const departments = await department.findAll({
+        attributes: [
+          "name",
+          "active",
+          "createdAt",
+          "description",
+          "organizationid",
+          "departmentid",
+          "organizationid",
+        ],
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["companyname"],
           },
-          attributes: [
-            "name",
-            "active",
-            "createdAt",
-            "description",
-            "departmentid",
-          ],
-        })
-      : { status: 403, message: "you are not permitted to view resource" };
-    return res.status(200).send(departments);
+        ],
+      });
+      return res.status(200).send(departments);
+    } else if (corporatePermission) {
+      const departments = await department.findAll({
+        where: {
+          organizationid: req.user.orgid,
+        },
+        attributes: [
+          "name",
+          "active",
+          "createdAt",
+          "description",
+          "departmentid",
+        ],
+      });
+      return res.status(200).send(departments);
+    } else {
+      // If the user doesn't have the required permissions, throw a 403 error
+      return res
+        .status(403)
+        .send({ message: "You are not permitted to view this resource" });
+    }
   } catch (error) {
     next(error);
   }
 };
+
 export const getDepartments = async (req, res, next) => {
   let { orgid } = req.params;
-  console.log(orgid);
 
   try {
     let departments = await department.findAll({
       where: {
         organizationid: orgid,
       },
+    });
+    return res.status(200).send(departments);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const SearchOrgsDept = async (req, res, next) => {
+  let { orgid } = req.params;
+  try {
+    const departments = await department.findAll({
+      where: {
+        organizationId: orgid,
+        active: true,
+      },
+      attributes: ["name", "organizationid"],
     });
     return res.status(200).send(departments);
   } catch (error) {

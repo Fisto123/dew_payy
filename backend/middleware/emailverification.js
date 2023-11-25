@@ -11,7 +11,7 @@ const sendActivationEmail = (email, task) => {
   const activationCode = generateActivationCode();
   transporter.sendMail(sendMail(email, activationCode, task), (error, info) => {
     if (error) {
-      console.error("Error sending activation email:", error);
+      return error;
     } else {
       console.log("Activation email sent:", info.response);
     }
@@ -33,7 +33,6 @@ export const emailVerificationMiddlewareAdmin = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.error("Error checking phone number:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -53,7 +52,6 @@ export const emailVerificationMiddlewareUserAdmin = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.error("Error checking phone number:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

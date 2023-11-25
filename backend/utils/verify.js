@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 export const auth = (req, res, next) => {
   const authorizationHeader = req.headers["authorization"];
   const token = authorizationHeader.split(" ")[1];
-  console.log("tok", token);
   if (token) {
     jwt.verify(token, "ZoJzc70XB0hXJNaPmnKkooOd5wiaJz0e", (err, user) => {
       if (err) return res.status(403).json("Token is not valid!");
@@ -27,7 +26,6 @@ export const adminauth = (req, res, next) => {
 };
 export const verifyTokenAndAdmin = (req, res, next) => {
   adminauth(req, res, () => {
-    // console.log(req.user.role);
     if (
       req.user.role === "superadmin" ||
       req.user.role === "corporate_owner" ||

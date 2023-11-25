@@ -30,7 +30,6 @@ export const generateInvoice = async (req, res, next) => {
       (sum, billing) => sum + parseFloat(billing.amount),
       0
     );
-    console.log(invoice.invoiceid);
     // Update the created invoice with the calculated total amount
     await Invoice.update(
       { totalAmount: totalAmount, amountdue: totalAmount }, // Adjust the rounding if needed
@@ -77,7 +76,6 @@ export const getInvoice = async (req, res, next) => {
 
     return res.status(200).send(responseData);
   } catch (error) {
-    console.error("Error:", error);
     return res.status(500).send("Internal Server Error");
   }
 };
@@ -119,7 +117,6 @@ export const getSingleInvoice = async (req, res, next) => {
 
     return res.status(200).send(responseData);
   } catch (error) {
-    console.error("Error:", error);
     return res.status(500).send("Internal Server Error");
   }
 };
@@ -146,7 +143,7 @@ export const payInvoice = async (req, res) => {
       res.status(404).send({ message: "invoice doesnt exist" });
     }
   } catch (error) {
-    console.log(error);
+    res.status(500).send("internal server error");
   }
 };
 
@@ -197,7 +194,6 @@ export const paypartialInvoice = async (req, res) => {
       res.status(404).send({ message: "Invoice does not exist" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).send({ message: "Internal Server Error" });
   }
 };

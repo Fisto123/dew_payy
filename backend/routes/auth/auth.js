@@ -1,6 +1,9 @@
 import express from "express";
 import {
   activateUser,
+  activateUserRole,
+  deactivateUser,
+  getCorporates,
   loginUser,
   registerCorporate,
   resetPassword,
@@ -15,6 +18,7 @@ import {
 import {
   addRoles,
   addUser,
+  editUser,
   getBillerManagers,
   getOrgUsers,
 } from "../../controller/user.js";
@@ -46,5 +50,9 @@ routes.patch("/resetpassword", resetPassword);
 routes.patch("/addroles/:userid", addRoles);
 routes.get("/getBillerMangers/:orgid", getBillerManagers);
 routes.get("/getorgusers", auth, getOrgUsers);
+routes.get("/getcorporates", auth, getCorporates);
+routes.patch("/deactivateuserstatus/:userid", auth, deactivateUser);
+routes.patch("/activateuserstatus/:userid", auth, activateUserRole);
+routes.patch("/edituser/:userid", auth, editUser);
 
 export default routes;
