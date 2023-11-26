@@ -3,10 +3,17 @@ export const billerModel = (sequelize, DataTypes) => {
     billerid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      unique: true,
       primaryKey: true,
       allowNull: false,
     },
+    // userid: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false,
+    //   references: {
+    //     model: "Users",
+    //     key: "userid",
+    //   },
+    // },
     departmentid: {
       type: DataTypes.UUID,
       allowNull: false,

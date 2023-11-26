@@ -1,115 +1,115 @@
-import { CButton } from '@coreui/react'
-import React, { useState } from 'react'
-import { CSmartTable } from '@coreui/react-pro'
-import moment from 'moment'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import { Edit } from '@mui/icons-material'
-import LockIcon from '@mui/icons-material/Lock'
-import axiosInstance from 'src/utils/newRequest'
-import { useUsersFetchingTransaction } from 'src/Hooks/fetchApiHooks'
-import UsersModal from '../modals/users/UsersModal'
-import { decodeTokenFromStorage } from 'src/utils/storage'
+import { CButton } from "@coreui/react";
+import React, { useState } from "react";
+import { CSmartTable } from "@coreui/react-pro";
+import moment from "moment";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Edit } from "@mui/icons-material";
+import LockIcon from "@mui/icons-material/Lock";
+import axiosInstance from "src/utils/newRequest";
+import { useUsersFetchingTransaction } from "src/Hooks/fetchApiHooks";
+import UsersModal from "../modals/users/UsersModal";
+import { decodeTokenFromStorage } from "src/utils/storage";
 
 const UserTable = () => {
-  const { data: usersData } = useUsersFetchingTransaction()
-  const [openModals, setOpenModals] = useState({})
-  const [visble, setVisible] = useState(false)
-  const [userz, setUser] = useState('')
-  let user = decodeTokenFromStorage()
-  let isProductOwner = user.roles.includes('product_owner')
+  const { data: usersData } = useUsersFetchingTransaction();
+  const [openModals, setOpenModals] = useState({});
+  const [visble, setVisible] = useState(false);
+  const [userz, setUser] = useState("");
+  let user = decodeTokenFromStorage();
+  let isProductOwner = user.roles.includes("product_owner");
 
   let columns = [
     {
-      key: 'action',
-      _style: { width: '2%' },
-      label: '',
+      key: "action",
+      _style: { width: "2%" },
+      label: "",
       filter: false,
       sorter: false,
     },
     {
-      key: 'organization',
-      _style: { width: '20%' },
+      key: "organization",
+      _style: { width: "20%" },
       filter: false,
     },
     {
-      key: 'user',
-      _style: { width: '20%' },
+      key: "user",
+      _style: { width: "20%" },
       filter: false,
     },
     {
-      key: 'department',
-      label: 'department',
-      _style: { width: '20%' },
+      key: "department",
+      label: "department",
+      _style: { width: "20%" },
       filter: false,
     },
     {
-      key: 'password_changed',
-      label: 'password changed',
-      _style: { width: '20%' },
+      key: "password_changed",
+      label: "password changed",
+      _style: { width: "20%" },
       filter: false,
     },
     {
-      key: 'verified',
-      label: 'verified',
-      _style: { width: '13%' },
+      key: "verified",
+      label: "verified",
+      _style: { width: "13%" },
       filter: false,
     },
     {
-      key: 'status',
-      label: 'Status',
-      _style: { width: '20%' },
+      key: "status",
+      label: "Status",
+      _style: { width: "20%" },
       filter: false,
     },
     {
-      key: 'date',
-      label: 'Date',
-      _style: { width: '20%' },
+      key: "date",
+      label: "Date",
+      _style: { width: "20%" },
       filter: false,
     },
-  ]
+  ];
   if (!isProductOwner) {
-    columns = columns.filter((column) => column.key !== 'organization')
+    columns = columns.filter((column) => column.key !== "organization");
   }
   const getBadge = (status) => {
     switch (status) {
       case true:
-        return 'success'
+        return "success";
       case false:
-        return 'secondary'
-      case 'active':
-        return 'success'
-      case 'inactive':
-        return 'secondary'
+        return "secondary";
+      case "active":
+        return "success";
+      case "inactive":
+        return "secondary";
       default:
-        return 'primary'
+        return "primary";
     }
-  }
+  };
 
   const openModal = (index, itemId) => {
     setOpenModals((prevModals) => ({
       ...prevModals,
       [itemId]: prevModals[itemId] === index ? null : index,
-    }))
-  }
+    }));
+  };
 
   const onEdit = (item) => {
-    setVisible(true)
-    setUser(item)
-  }
+    setVisible(true);
+    setUser(item);
+  };
   const changeStatus = async (item) => {
     let response =
-      item && item?.status === 'inactive'
+      item && item?.status === "inactive"
         ? await axiosInstance.patch(`/activateuserstatus/${item?.userid}`)
-        : await axiosInstance.patch(`/deactivateuserstatus/${item?.userid}`)
+        : await axiosInstance.patch(`/deactivateuserstatus/${item?.userid}`);
     try {
       if (response?.status === 200) {
-        alert(response?.data?.message)
-        window.location.reload()
+        alert(response?.data?.message);
+        window.location.reload();
       } else {
-        alert('error updating resource')
+        alert("error updating resource");
       }
     } catch (error) {}
-  }
+  };
   return (
     <>
       <CSmartTable
@@ -122,33 +122,34 @@ const UserTable = () => {
         itemsPerPageSelect
         itemsPerPage={10}
         pagination
-        onFilteredItemsChange={(items) => {
-          console.log(items)
-        }}
-        onSelectedItemsChange={(items) => {
-          console.log(items)
-        }}
+        onFilteredItemsChange={(items) => {}}
+        onSelectedItemsChange={(items) => {}}
         scopedColumns={{
           action: (item, index) => {
             return (
               <td>
                 <MoreVertIcon
                   onClick={() => openModal(index, item?.organizationid)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: "pointer" }}
                 />
                 {openModals[item?.organizationid] !== null &&
                   openModals[item?.organizationid] === index && (
                     <div
                       style={{
-                        backgroundColor: 'gray',
-                        padding: '15px',
-                        textAlign: 'center',
-                        color: 'white',
-                      }}
-                    >
-                      <div className="d-flex mb-3" onClick={() => changeStatus(item)}>
+                        backgroundColor: "gray",
+                        padding: "15px",
+                        textAlign: "center",
+                        color: "white",
+                      }}>
+                      <div
+                        className="d-flex mb-3"
+                        onClick={() => changeStatus(item)}>
                         <LockIcon />
-                        <h7>{item?.status === 'active' ? 'Deactivate' : 'Activate'}</h7>
+                        <h7>
+                          {item?.status === "active"
+                            ? "Deactivate"
+                            : "Activate"}
+                        </h7>
                       </div>
                       <div className="d-flex" onClick={() => onEdit(item)}>
                         <Edit />
@@ -157,7 +158,7 @@ const UserTable = () => {
                     </div>
                   )}
               </td>
-            )
+            );
           },
           organization: (item) => (
             <td>
@@ -166,64 +167,73 @@ const UserTable = () => {
           ),
           user: (item) => (
             <td>
-              <h7>{item?.firstname + ' ' + item?.surname + ' ' + '/' + item?.email}</h7>
+              <h7>
+                {item?.firstname +
+                  " " +
+                  item?.surname +
+                  " " +
+                  "/" +
+                  item?.email}
+              </h7>
             </td>
           ),
           department: (item) => (
             <td>
-              <h7>{item.department || 'N/S'}</h7>
+              <h7>{item.department || "N/S"}</h7>
             </td>
           ),
           password_changed: (item) => (
             <td>
               <CButton
-                style={{ width: '80%', textAlign: 'center' }}
-                color={getBadge(item.passwordchanged)}
-              >
-                {item.passwordchanged ? 'yes' : 'no'}
+                style={{ width: "80%", textAlign: "center" }}
+                color={getBadge(item.passwordchanged)}>
+                {item.passwordchanged ? "yes" : "no"}
               </CButton>
             </td>
           ),
           verified: (item) => (
             <td>
-              {' '}
+              {" "}
               <CButton
-                style={{ width: '80%', textAlign: 'center' }}
-                color={getBadge(item.accountactivated)}
-              >
-                {item.accountactivated ? 'yes' : 'no'}
+                style={{ width: "80%", textAlign: "center" }}
+                color={getBadge(item.accountactivated)}>
+                {item.accountactivated ? "yes" : "no"}
               </CButton>
             </td>
           ),
           status: (item) => (
             <td>
-              {' '}
-              <CButton style={{ width: '80%', textAlign: 'center' }} color={getBadge(item.status)}>
-                {item.status === 'active' ? 'yes' : 'no'}
+              {" "}
+              <CButton
+                style={{ width: "80%", textAlign: "center" }}
+                color={getBadge(item.status)}>
+                {item.status === "active" ? "yes" : "no"}
               </CButton>
             </td>
           ),
           date: (item) => (
             <td>
-              <h9>{moment(item.createdAt).format('MMMM YYYY, h:mm:ss a')}</h9>
+              <h9>{moment(item.createdAt).format("MMMM YYYY, h:mm:ss a")}</h9>
             </td>
           ),
         }}
-        sorterValue={{ column: 'status', state: 'asc' }}
+        sorterValue={{ column: "status", state: "asc" }}
         tableFilter
         tableProps={{
-          className: 'add-this-class',
+          className: "add-this-class",
           responsive: true,
           striped: true,
           hover: true,
         }}
         tableBodyProps={{
-          className: 'align-middle',
+          className: "align-middle",
         }}
       />
-      {visble && <UsersModal visible={visble} setVisible={setVisible} user={userz} />}
+      {visble && (
+        <UsersModal visible={visble} setVisible={setVisible} user={userz} />
+      )}
     </>
-  )
-}
+  );
+};
 
-export default UserTable
+export default UserTable;

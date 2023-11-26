@@ -24,19 +24,18 @@ import { useDataCorporates } from "src/Hooks/fetchApiHooks";
 import { decodeTokenFromStorage } from "src/utils/storage";
 import { BASEURL } from "src/utils/constant";
 
-const UsersModal = ({ visible, setVisible, user }) => {
+const Addbillmodal = ({ visible, setVisible, bill }) => {
   const nav = useNavigate();
   const { data: corpdata } = useDataCorporates();
   let info = decodeTokenFromStorage();
   let ownerspermission = info && info?.roles.includes("product_owner");
   const [orgdept, setOrgDept] = useState([]);
   const [formValues, setFormValues] = useState({
-    firstname: "",
-    surname: "",
-    email: "",
-    department: "",
+    billcode: "",
+    amount: "",
+    billdescription: "",
+    departmentid: "",
     orgid: ownerspermission ? "" : info.orgid,
-    roles: user?.roles || [],
   });
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -45,44 +44,23 @@ const UsersModal = ({ visible, setVisible, user }) => {
       [name]: value,
     }));
   };
-  const handleCheckboxChange = (event) => {
-    const { value, checked } = event.target;
-
-    setFormValues((prevValues) => {
-      if (checked && !prevValues.roles.includes(value)) {
-        return {
-          ...prevValues,
-          roles: [...prevValues.roles, value],
-        };
-      } else if (!checked) {
-        return {
-          ...prevValues,
-          roles: prevValues.roles.filter((role) => role !== value),
-        };
-      } else {
-        // No change needed
-        return prevValues;
-      }
-    });
-  };
   useEffect(() => {
-    if (user) {
+    if (bill) {
       setFormValues({
-        firstname: user?.firstname || "",
-        surname: user?.surname || "",
-        email: user?.email || "",
-        department: user?.department || "ff",
-        roles: user?.roles || [],
-        // orgid: orgdept[0]?.organizationid,
+        billcode: bill.billcode || "",
+        amount: bill.amount || "",
+        billdescription: bill.billdescription || "",
+        departmentid: bill?.departmentid,
+        orgid: ownerspermission ? bill?.organizationid : info.orgid,
       });
     }
-  }, [user]);
+  }, [bill]);
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
         const response = await axiosInstance.get(
           `${BASEURL}/searchorgdept/${
-            user?.organizationid || formValues?.orgid
+            bill?.organizationid || formValues?.orgid
           }`
         );
         setOrgDept(response.data);
@@ -92,8 +70,7 @@ const UsersModal = ({ visible, setVisible, user }) => {
       }
     };
     fetchDepartments();
-  }, [formValues.orgid, user?.organizationid]);
-
+  }, [formValues.orgid, bill?.organizationid]);
   const BrowserDefaults = () => {
     const [validated, setValidated] = useState(false);
     const handleSubmit = async (event) => {
@@ -108,21 +85,19 @@ const UsersModal = ({ visible, setVisible, user }) => {
         try {
           const orgid = decodeTokenFromStorage().orgid;
           const response =
-            orgid && user && user?.userid
+            orgid && bill && bill?.billerid
               ? await axiosInstance.patch(
-                  `/edituser/${user?.userid}`,
+                  `/editbill/${bill?.billerid}`,
                   formValues
                 )
-              : orgid && (await axiosInstance.post(`/adduser`, formValues));
+              : orgid &&
+                (await axiosInstance.post(`/generatebill`, formValues));
           if (response.status === 201) {
             nav("/");
             alert(response.data.message);
           }
         } catch (error) {
-          let logs = error.response.data.errors;
-          logs?.forEach((error) => {
-            alert(`${error.field}: ${error.message}`);
-          }) || alert(error.response.data.error);
+          alert(error?.response?.data?.message);
         }
       }
     };
@@ -131,11 +106,10 @@ const UsersModal = ({ visible, setVisible, user }) => {
       const requiredFieldsFilled = Object.values(formValues).every(
         (value) => value !== ""
       );
-      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.email);
-      const atLeastOneCheckboxChecked = formValues.roles.length > 0;
 
-      return requiredFieldsFilled && emailValid && atLeastOneCheckboxChecked;
+      return requiredFieldsFilled;
     };
+    console.log(formValues);
     return (
       <>
         <CModal
@@ -144,7 +118,7 @@ const UsersModal = ({ visible, setVisible, user }) => {
           aria-labelledby="LiveDemoExampleLabel">
           <CModalHeader onClose={() => setVisible(false)}>
             <CModalTitle id="LiveDemoExampleLabel">
-              {user && user.userid ? "EDIT USER" : "ADD USER"}
+              {bill && bill.billerid ? "EDIT BILL" : "ADD BILL"}
             </CModalTitle>
           </CModalHeader>
           <CForm
@@ -162,7 +136,7 @@ const UsersModal = ({ visible, setVisible, user }) => {
                   id="validationTooltip04"
                   required
                   name="orgid"
-                  disabled={user && user.userid}
+                  disabled={bill && bill.billerid}
                   // defaultChecked={dept && dept.departmentid ? deptValues.orgid : 'ww'}
                 >
                   <option selected disabled>
@@ -182,30 +156,30 @@ const UsersModal = ({ visible, setVisible, user }) => {
             )}
 
             <CCol md={6} className="position-relative">
-              <CFormLabel htmlFor="validationTooltip01">Firstname</CFormLabel>
+              <CFormLabel htmlFor="validationTooltip01">Bill code</CFormLabel>
               <CFormInput
                 type="text"
                 id="validationTooltip01"
                 required
                 style={{ height: "50px" }}
                 onChange={handleChange}
-                defaultValue={user && user?.firstname ? user?.firstname : ""}
-                name="firstname"
+                defaultValue={bill && bill?.billerid ? bill?.billcode : ""}
+                name="billcode"
               />
               <CFormFeedback
                 tooltip
                 invalid
                 style={{ background: "none", color: "red" }}>
-                Please input your firstname.
+                Please input billcode.
               </CFormFeedback>
             </CCol>
             <CCol md={6} className="position-relative">
-              <CFormLabel htmlFor="validationTooltip02">Lastname</CFormLabel>
+              <CFormLabel htmlFor="validationTooltip02">Price</CFormLabel>
               <CFormInput
-                defaultValue={user && user?.surname ? user?.surname : ""}
+                defaultValue={bill && bill?.billerid ? bill?.amount : ""}
                 onChange={handleChange}
-                name="surname"
-                type="text"
+                name="amount"
+                type="number"
                 id="validationTooltip02"
                 style={{ height: "50px" }}
                 required
@@ -214,16 +188,20 @@ const UsersModal = ({ visible, setVisible, user }) => {
                 tooltip
                 invalid
                 style={{ background: "none", color: "red" }}>
-                Please input your lastname.
+                Please input the price.
               </CFormFeedback>
             </CCol>
             <CCol md={6} className="position-relative">
-              <CFormLabel htmlFor="validationTooltip03">Email</CFormLabel>
+              <CFormLabel htmlFor="validationTooltip03">
+                Bill description
+              </CFormLabel>
               <CFormInput
                 onChange={handleChange}
-                name="email"
-                type="email"
-                defaultValue={user && user?.email ? user?.email : ""}
+                name="billdescription"
+                type="text"
+                defaultValue={
+                  bill && bill?.billerid ? bill?.billdescription : ""
+                }
                 id="validationTooltip03"
                 required
               />
@@ -231,7 +209,7 @@ const UsersModal = ({ visible, setVisible, user }) => {
                 tooltip
                 invalid
                 style={{ background: "none", color: "red" }}>
-                Please provide a valid email.
+                Please provide description.
               </CFormFeedback>
             </CCol>
             <CCol md={6} className="position-relative">
@@ -240,68 +218,21 @@ const UsersModal = ({ visible, setVisible, user }) => {
                 onChange={handleChange}
                 id="validationTooltip04"
                 required
-                name="department"
-                defaultValue={user && user?.department ? user?.department : ""}>
+                name="departmentid"
+                defaultValue={bill && bill?.department ? bill?.department : ""}>
                 <option selected disabled>
                   Choose...
                 </option>
                 {orgdept &&
                   orgdept.map((dat, index) => (
-                    <option key={index}>{dat.name}</option>
+                    <option key={index} value={dat?.departmentid}>
+                      {dat.name}
+                    </option>
                   ))}
               </CFormSelect>
               <CFormFeedback tooltip invalid>
                 Please provide a valid department.
               </CFormFeedback>
-            </CCol>
-
-            <CCol xs={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.roles.includes("biller_agent")}
-                    value="biller_agent"
-                    onChange={handleCheckboxChange}
-                  />
-                }
-                label="Assign biller agent role"
-              />
-            </CCol>
-            <CCol xs={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.roles.includes("dashboard_agent")}
-                    value="dashboard_agent"
-                    onChange={handleCheckboxChange}
-                  />
-                }
-                label="Assign dashboard agent role"
-              />
-            </CCol>
-            <CCol xs={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.roles.includes("terminal_agent")}
-                    value="terminal_agent"
-                    onChange={handleCheckboxChange}
-                  />
-                }
-                label="Assign terminal agent role"
-              />
-            </CCol>
-            <CCol xs={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.roles.includes("corporate_owner")}
-                    value="corporate_owner"
-                    onChange={handleCheckboxChange}
-                  />
-                }
-                label="Assign corporate agent role"
-              />
             </CCol>
             <CCol xs={12} className="position-relative">
               <CButton color="primary" type="submit" disabled={!isFormValid()}>
@@ -337,9 +268,9 @@ const UsersModal = ({ visible, setVisible, user }) => {
     </div>
   );
 };
-UsersModal.propTypes = {
+Addbillmodal.propTypes = {
   visible: PropTypes.bool.isRequired,
   setVisible: PropTypes.bool.isRequired,
-  user: PropTypes.object,
+  bill: PropTypes.object,
 };
-export default UsersModal;
+export default Addbillmodal;

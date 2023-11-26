@@ -11,7 +11,6 @@ export const userModel = (sequelize, DataTypes) => {
     },
     organizationid: {
       type: DataTypes.UUID,
-
       defaultValue: DataTypes.UUIDV4,
     },
     firstname: {

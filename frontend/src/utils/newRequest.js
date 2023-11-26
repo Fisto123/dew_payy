@@ -1,32 +1,29 @@
-import axios from 'axios'
-import { BASEURL } from './constant'
-import { getToken } from './storage'
+import axios from "axios";
+import { BASEURL } from "./constant";
+import { getToken } from "./storage";
 
 const axiosInstance = axios.create({
   baseURL: BASEURL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: true,
-})
+});
 
 // Check for token and append to headers for each request
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = getToken()
-    console.log(token)
+    const token = getToken();
     if (token) {
-      console.log('hoii')
-      config.headers['authorization'] = `Bearer ${token}`
+      config.headers["authorization"] = `Bearer ${token}`;
     } else {
-      console.log('No token available')
     }
-    return config
+    return config;
   },
   (error) => {
-    return Promise.reject(error)
-  },
-)
+    return Promise.reject(error);
+  }
+);
 
 // axiosInstance.interceptors.response.use(
 //   (response) => {
@@ -57,4 +54,4 @@ axiosInstance.interceptors.request.use(
 //     return Promise.reject(error);
 //   }
 // );
-export default axiosInstance
+export default axiosInstance;

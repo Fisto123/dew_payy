@@ -315,7 +315,7 @@ export const SearchOrgsDept = async (req, res, next) => {
         organizationId: orgid,
         active: true,
       },
-      attributes: ["name", "organizationid"],
+      attributes: ["name", "organizationid", "departmentid"],
     });
     return res.status(200).send(departments);
   } catch (error) {

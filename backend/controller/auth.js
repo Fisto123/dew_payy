@@ -1,8 +1,9 @@
-import db from "../model/index.js";
+import db, { sequelize } from "../model/index.js";
 const User = db.user;
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/token.js";
 import { hasPermission } from "../utils/permission.js";
+import { Sequelize } from "sequelize";
 
 export const registerCorporate = async (req, res, next) => {
   const activationCode = req.activationCode;
@@ -201,11 +202,18 @@ export const updatecorporatecontact = async (req, res, next) => {
 export const getCorporates = async (req, res) => {
   if (hasPermission(req.user.roles)) {
     let corporates = await User.findAll({
+      attributes: [
+        [
+          sequelize.fn("DISTINCT", sequelize.col("organizationid")),
+          "organizationid",
+        ],
+        "companyname",
+      ],
       where: {
         verifiedorgstatus: true,
         accountactivated: true,
       },
-      attributes: ["organizationid", "companyname"],
+      raw: true,
     });
     res.status(200).send(corporates);
   } else {

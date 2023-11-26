@@ -48,7 +48,7 @@ routes.patch("/updatecorporatecontact/:organizationid", updatecorporatecontact);
 routes.post("/adduser", emailVerificationMiddlewareUserAdmin, auth, addUser);
 routes.patch("/resetpassword", resetPassword);
 routes.patch("/addroles/:userid", addRoles);
-routes.get("/getBillerMangers/:orgid", getBillerManagers);
+routes.get("/getBillerMangers", auth, getBillerManagers);
 routes.get("/getorgusers", auth, getOrgUsers);
 routes.get("/getcorporates", auth, getCorporates);
 routes.patch("/deactivateuserstatus/:userid", auth, deactivateUser);

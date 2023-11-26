@@ -1,83 +1,135 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import axiosInstance from '../utils/newRequest'
-import { BASEURL } from 'src/utils/constant'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/newRequest";
+import { BASEURL } from "src/utils/constant";
 
 export const useDepartmentFetchingTransaction = (id) => {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [errorstatus, setErrorStatus] = useState(null)
-  const nav = useNavigate()
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorstatus, setErrorStatus] = useState(null);
+  const nav = useNavigate();
 
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await axiosInstance.get(`${BASEURL}/getOrgDepartments`)
-        setData(response.data)
+        const response = await axiosInstance.get(
+          `${BASEURL}/getOrgDepartments`
+        );
+        setData(response.data);
       } catch (error) {
-        setErrorStatus(error?.response?.status)
-        console.log(errorstatus)
+        setErrorStatus(error?.response?.status);
         if (errorstatus === 403) {
-          nav('/500')
+          nav("/500");
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchDepartments()
-  }, [errorstatus, nav])
+    };
+    fetchDepartments();
+  }, [errorstatus, nav]);
 
-  return { data, loading, errorstatus, nav }
-}
+  return { data, loading, errorstatus, nav };
+};
 export const useUsersFetchingTransaction = (id) => {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [errorstatus, setErrorStatus] = useState(null)
-  const nav = useNavigate()
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorstatus, setErrorStatus] = useState(null);
+  const nav = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axiosInstance.get(`${BASEURL}/getorgusers`)
-        setData(response.data)
+        const response = await axiosInstance.get(`${BASEURL}/getorgusers`);
+        setData(response.data);
       } catch (error) {
-        setErrorStatus(error?.response?.status)
+        setErrorStatus(error?.response?.status);
         if (errorstatus === 403) {
-          nav('/500')
+          nav("/500");
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchUsers()
-  }, [errorstatus, nav])
+    };
+    fetchUsers();
+  }, [errorstatus, nav]);
 
-  return { data, loading, errorstatus }
-}
+  return { data, loading, errorstatus };
+};
 export const useDataCorporates = (id) => {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const getcorporates = async () => {
       try {
         //const id = decodeTokenFromCookie().id;
-        const response = await axiosInstance.get(`${BASEURL}/getcorporates`)
-        setData(response.data)
+        const response = await axiosInstance.get(`${BASEURL}/getcorporates`);
+        setData(response.data);
       } catch (error) {
-        setError(error?.response?.status)
-        console.log(error)
+        setError(error?.response?.status);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    getcorporates()
-  }, [])
+    getcorporates();
+  }, []);
 
-  return { data, loading, error }
-}
+  return { data, loading, error };
+};
+export const useDepartmentBillers = (id) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorstatus, setErrorStatus] = useState(null);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    const fetchDepartmentsBiller = async () => {
+      try {
+        const response = await axiosInstance.get(`${BASEURL}/getBillerMangers`);
+        setData(response.data);
+      } catch (error) {
+        setErrorStatus(error?.response?.status);
+        if (errorstatus === 403) {
+          nav("/500");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDepartmentsBiller();
+  }, [errorstatus, nav]);
+
+  return { data, loading, errorstatus, nav };
+};
+export const useGetOrganizationBiller = (id) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorstatus, setErrorStatus] = useState(null);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    const fetchOrgBiller = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `${BASEURL}/getOrganizationBiller`
+        );
+        setData(response.data);
+      } catch (error) {
+        setErrorStatus(error?.response?.status);
+        if (errorstatus === 403) {
+          nav("/500");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrgBiller();
+  }, [errorstatus, nav]);
+
+  return { data, loading, errorstatus, nav };
+};
 
 // export const useDataFetchingSingleProduct = (productid) => {
 //   const [data, setData] = useState(null)

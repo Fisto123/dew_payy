@@ -37,9 +37,9 @@ db.biller = billerModel(sequelize, DataTypes);
 db.invoice = invoiceModel(sequelize, DataTypes);
 db.payment = paymentModel(sequelize, DataTypes);
 
-db.sequelize.sync({ force: false }).then(() => {
-  console.log("yes re-sync done!!");
-});
+// db.sequelize.sync({ force: false }).then(() => {
+//   console.log("yes re-sync done!!");
+// });
 
 //await sequelize.sync({ alter: true });
 // await sequelize
@@ -62,6 +62,14 @@ db.department.belongsTo(db.user, {
   as: "user",
 });
 
+db.biller.hasMany(db.user, {
+  foreignKey: "userid",
+});
+db.user.belongsTo(db.biller, {
+  foreignKey: "userid",
+  as: "user",
+});
+
 db.department.hasMany(db.biller, {
   foreignKey: "departmentid",
 });
@@ -70,15 +78,17 @@ db.biller.belongsTo(db.department, {
   as: "department",
 });
 
+// db.biller.belongsTo(db.user, { foreignKey: "userid", as: "users" });
+
 // Define the association
-db.invoice.belongsToMany(db.biller, {
-  through: "InvoiceBillers", // This is the name of your intermediary table
-  foreignKey: "invoiceid",
-});
-db.biller.belongsToMany(db.invoice, {
-  through: "InvoiceBillers", // This is the name of your intermediary table
-  foreignKey: "billers",
-});
+// db.invoice.belongsToMany(db.biller, {
+//   through: "InvoiceBillers", // This is the name of your intermediary table
+//   foreignKey: "invoiceid",
+// });
+// db.biller.belongsToMany(db.invoice, {
+//   through: "InvoiceBillers", // This is the name of your intermediary table
+//   foreignKey: "billers",
+// });
 
 db.invoice.hasMany(db.payment, {
   foreignKey: "invoiceid",

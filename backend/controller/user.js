@@ -70,18 +70,41 @@ export const addRoles = async (req, res) => {
 };
 
 export const getBillerManagers = async (req, res, next) => {
-  const { orgid } = req.params;
-
+  let ownerspermission = req.user.roles.includes("product_owner");
   try {
-    const billers = await User.findAll({
-      where: {
-        organizationid: orgid,
-        roles: ["%" + "biller_agent" + "%"],
-      },
-    });
+    if (!hasPermission(req.user.roles)) {
+      return res.status(403).json({ message: "permission denied" });
+    }
+    const billers = ownerspermission
+      ? await User.findAll({
+          where: {
+            roles: {
+              [Op.like]: ["%biller_agent%"],
+            },
+            accountactivated: true,
+          },
+          attributes: [
+            "firstname",
+            "surname",
+            "email",
+            "companyname",
+            "department",
+          ],
+        })
+      : await User.findAll({
+          where: {
+            organizationid: req.user.orgid,
+            accountactivated: true,
+            roles: {
+              [Op.like]: ["%biller_agent%"],
+            },
+          },
+          attributes: ["firstname", "surname", "email", "department"],
+        });
 
     return res.status(200).json(billers);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };

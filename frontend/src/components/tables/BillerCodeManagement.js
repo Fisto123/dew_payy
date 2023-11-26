@@ -1,23 +1,51 @@
 import { CButton } from "@coreui/react";
 import React, { useState } from "react";
 import { CSmartTable } from "@coreui/react-pro";
-import { useDepartmentFetchingTransaction } from "src/Hooks/fetchApiHooks";
-import moment from "moment";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {
+  useDepartmentBillers,
+  useGetOrganizationBiller,
+} from "src/Hooks/fetchApiHooks";
 import { Edit } from "@mui/icons-material";
 import LockIcon from "@mui/icons-material/Lock";
-import DeptModal from "../modals/department/DeptModal";
-import axiosInstance from "src/utils/newRequest";
+import moment from "moment";
 import { decodeTokenFromStorage } from "src/utils/storage";
+import { formatCurrency } from "src/utils/currency";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Addbillmodal from "../modals/biller/Addbillmodal";
+import axiosInstance from "src/utils/newRequest";
 
-const DepartmentTable = () => {
-  const { data: usersData } = useDepartmentFetchingTransaction();
+const BillerCodeManagement = () => {
   const [openModals, setOpenModals] = useState({});
   const [visble, setVisible] = useState(false);
-  const [department, setDepartment] = useState("");
+  const [biller, setBiller] = useState("");
   let user = decodeTokenFromStorage();
-  const isProductOwner = user.roles.includes("product_owner"); //false
+  const { data: usersData } = useGetOrganizationBiller();
+  const isProductOwner = user?.roles?.includes("product_owner"); //false
+  const openModal = (index, itemId) => {
+    setOpenModals((prevModals) => ({
+      ...prevModals,
+      [itemId]: prevModals[itemId] === index ? null : index,
+    }));
+  };
 
+  const onEdit = (item) => {
+    setVisible(true);
+    setBiller(item);
+  };
+  const changeStatus = async (item) => {
+    let response =
+      item && item?.active === true
+        ? await axiosInstance.patch(`/deactivatebiller/${item?.billerid}`)
+        : await axiosInstance.patch(`/activatebiller/${item?.billerid}`);
+    try {
+      if (response?.status === 200) {
+        alert(response?.data?.message);
+        window.location.reload();
+      } else {
+        alert("error updating resource");
+      }
+    } catch (error) {}
+  };
   let columns = [
     {
       key: "action",
@@ -27,39 +55,51 @@ const DepartmentTable = () => {
       sorter: false,
     },
     {
-      key: "company",
-      _style: { width: "20%" },
+      key: "corporate",
+      _style: { width: "30%" },
       filter: false,
     },
     {
-      key: "name",
-      _style: { width: "20%" },
+      key: "department",
+      label: "department",
+      _style: { width: "15%" },
+      filter: false,
+    },
+    {
+      key: "code",
+      label: "code",
+      _style: { width: "10%" },
       filter: false,
     },
     {
       key: "description",
-      label: "Description",
-      _style: { width: "40%" },
+      label: "description",
+      _style: { width: "25%" },
       filter: false,
     },
     {
-      key: "active",
-      label: "Active",
+      key: "amount",
+      label: "Amount(₦)",
       _style: { width: "20%" },
+      filter: false,
+    },
+    {
+      key: "status",
+      label: "status",
+      _style: { width: "10%" },
       filter: false,
     },
     {
       key: "date",
-      label: "Date",
-      _style: { width: "20%" },
+      label: "date",
+      _style: { width: "30%" },
       filter: false,
     },
   ];
   if (!isProductOwner) {
     // If the user is not a product owner, remove the 'company' column
-    columns = columns.filter((column) => column.key !== "company");
+    columns = columns.filter((column) => column.key !== "corporate");
   }
-
   const getBadge = (status) => {
     switch (status) {
       case true:
@@ -71,35 +111,6 @@ const DepartmentTable = () => {
     }
   };
 
-  const openModal = (index, itemId) => {
-    setOpenModals((prevModals) => ({
-      ...prevModals,
-      [itemId]: prevModals[itemId] === index ? null : index,
-    }));
-  };
-
-  const onEdit = (item) => {
-    setVisible(true);
-    setDepartment(item);
-  };
-  const changeStatus = async (item) => {
-    let response =
-      item && item?.active === true
-        ? await axiosInstance.patch(
-            `/deactivateDepartment/${item?.departmentid}`
-          )
-        : await axiosInstance.patch(
-            `/activateDepartment/${item?.departmentid}`
-          );
-    try {
-      if (response?.status === 200) {
-        alert(response?.data?.message);
-        window.location.reload();
-      } else {
-        alert("error updating resource");
-      }
-    } catch (error) {}
-  };
   return (
     <>
       <CSmartTable
@@ -148,20 +159,32 @@ const DepartmentTable = () => {
               </td>
             );
           },
-          company: (item) => (
-            <td>{isProductOwner && <h7>{item?.user?.companyname}</h7>}</td>
-          ),
-          name: (item) => (
+          corporate: (item) => (
             <td>
-              <h7>{item.name}</h7>
+              {isProductOwner && <h7>{item?.organization?.companyname}</h7>}
+            </td>
+          ),
+          department: (item) => (
+            <td>
+              <h7>{item?.department?.name}</h7>
+            </td>
+          ),
+          code: (item) => (
+            <td>
+              <h7>{item.billcode}</h7>
             </td>
           ),
           description: (item) => (
             <td>
-              <h7>{item.description}</h7>
+              <h8>{item?.billdescription}</h8>
             </td>
           ),
-          active: (item) => (
+          amount: (item) => (
+            <td>
+              <h8> {formatCurrency(item?.amount, "NGN", "en-NG")}</h8>
+            </td>
+          ),
+          status: (item) => (
             <td>
               <CButton
                 style={{ width: "80%", textAlign: "center" }}
@@ -191,10 +214,10 @@ const DepartmentTable = () => {
         }}
       />
       {visble && (
-        <DeptModal visible={visble} setVisible={setVisible} dept={department} />
+        <Addbillmodal visible={visble} setVisible={setVisible} bill={biller} />
       )}
     </>
   );
 };
 
-export default DepartmentTable;
+export default BillerCodeManagement;
