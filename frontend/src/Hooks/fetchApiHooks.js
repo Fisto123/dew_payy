@@ -103,6 +103,33 @@ export const useDepartmentBillers = (id) => {
 
   return { data, loading, errorstatus, nav };
 };
+export const useDepartmentTerminals = (id) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorstatus, setErrorStatus] = useState(null);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    const fetchDepartmentsTerminal = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `${BASEURL}/getterminalmanagers`
+        );
+        setData(response.data);
+      } catch (error) {
+        setErrorStatus(error?.response?.status);
+        if (errorstatus === 403) {
+          nav("/500");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDepartmentsTerminal();
+  }, [errorstatus, nav]);
+
+  return { data, loading, errorstatus, nav };
+};
 export const useGetOrganizationBiller = (id) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

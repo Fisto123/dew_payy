@@ -39,6 +39,12 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: "TERMINAL MANAGEMENT",
+    to: "/terminal-management",
+    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
     name: "BILLER MANAGEMENT",
     to: "/biller-management",
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,

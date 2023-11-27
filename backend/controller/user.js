@@ -108,7 +108,45 @@ export const getBillerManagers = async (req, res, next) => {
     next(error);
   }
 };
+export const getTerminalManagers = async (req, res, next) => {
+  let ownerspermission = req.user.roles.includes("product_owner");
+  try {
+    if (!hasPermission(req.user.roles)) {
+      return res.status(403).json({ message: "permission denied" });
+    }
+    const terminals = ownerspermission
+      ? await User.findAll({
+          where: {
+            roles: {
+              [Op.like]: ["%terminal_agent%"],
+            },
+            accountactivated: true,
+          },
+          attributes: [
+            "firstname",
+            "surname",
+            "email",
+            "companyname",
+            "department",
+          ],
+        })
+      : await User.findAll({
+          where: {
+            organizationid: req.user.orgid,
+            accountactivated: true,
+            roles: {
+              [Op.like]: ["%terminal_agent%"],
+            },
+          },
+          attributes: ["firstname", "surname", "email", "department"],
+        });
 
+    return res.status(200).json(terminals);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
 export const getOrgUsers = async (req, res, next) => {
   let ownerspermission = req.user.roles.includes("product_owner");
   let corporatepermission = req.user.roles.includes("corporate_owner");

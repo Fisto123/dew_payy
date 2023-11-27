@@ -2,6 +2,7 @@ import React from "react";
 import Department from "./views/pages/department-management/Department";
 import UserManagement from "./views/pages/user-management/UserManagement";
 import BillerManagement from "./views/pages/biller-management/BillerManagement";
+import TerminalManagement from "./views/pages/terminal-management/TerminalManagement";
 
 const Dashboard = React.lazy(() => import("./views/dashboard/Dashboard"));
 const Colors = React.lazy(() => import("./views/theme/colors/Colors"));
@@ -91,6 +92,11 @@ const routes = [
     path: "/user-management",
     name: "user-management",
     element: UserManagement,
+  },
+  {
+    path: "/terminal-management",
+    name: "terminal-management",
+    element: TerminalManagement,
   },
   {
     path: "/biller-management",

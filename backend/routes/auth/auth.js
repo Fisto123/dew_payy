@@ -21,6 +21,7 @@ import {
   editUser,
   getBillerManagers,
   getOrgUsers,
+  getTerminalManagers,
 } from "../../controller/user.js";
 import { auth } from "../../utils/verify.js";
 const routes = express.Router({
@@ -49,6 +50,7 @@ routes.post("/adduser", emailVerificationMiddlewareUserAdmin, auth, addUser);
 routes.patch("/resetpassword", resetPassword);
 routes.patch("/addroles/:userid", addRoles);
 routes.get("/getBillerMangers", auth, getBillerManagers);
+routes.get("/getterminalmanagers", auth, getTerminalManagers);
 routes.get("/getorgusers", auth, getOrgUsers);
 routes.get("/getcorporates", auth, getCorporates);
 routes.patch("/deactivateuserstatus/:userid", auth, deactivateUser);

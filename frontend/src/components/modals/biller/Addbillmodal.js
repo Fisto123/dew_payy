@@ -97,6 +97,7 @@ const Addbillmodal = ({ visible, setVisible, bill }) => {
             alert(response.data.message);
           }
         } catch (error) {
+          console.log(error);
           alert(error?.response?.data?.message);
         }
       }
