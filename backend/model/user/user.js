@@ -109,23 +109,6 @@ export const userModel = (sequelize, DataTypes) => {
       type: DataTypes.ENUM,
       defaultValue: "notsubmitted",
       values: ["pending", "approved", "rejected", "notsubmitted"],
-      validateCorporateInfo(value) {
-        if (!value || typeof value !== "object") {
-          throw new Error("Corporate information must be an object");
-        }
-
-        if (!value.RCNo || isNaN(value.RCNo)) {
-          throw new Error("RCNo must be a valid number");
-        }
-
-        if (!value.CAC || !isValidImageLink(value.CAC)) {
-          throw new Error("CAC must be a valid image link");
-        }
-
-        if (!value.utility || !isValidImageLink(value.utility)) {
-          throw new Error("Utility must be a valid image link");
-        }
-      },
     },
     corporatedocumentinfo: {
       type: DataTypes.JSON,

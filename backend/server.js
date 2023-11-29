@@ -9,14 +9,18 @@ import invoiceRoutes from "./routes/invoice/invoice.js";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { errorHandler } from "./error/error.js";
+import { EventEmitter } from "events";
 
+EventEmitter.defaultMaxListeners = 15;
 const app = express();
+
 app.use(
   cors({
     origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
   })
 );
+app.use("/public/images", express.static("./public/images"));
 
 app.use(bodyParser.json());
 app.use(express.json());

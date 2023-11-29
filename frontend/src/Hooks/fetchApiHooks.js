@@ -157,6 +157,52 @@ export const useGetOrganizationBiller = (id) => {
 
   return { data, loading, errorstatus, nav };
 };
+export const useDataUser = (id) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  console.log(id);
+  useEffect(() => {
+    const getuser = async () => {
+      try {
+        //const id = decodeTokenFromCookie().id;
+        const response = await axiosInstance.get(`${BASEURL}/getuser/${id}`);
+        setData(response.data);
+      } catch (error) {
+        setError(error?.response?.status);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getuser();
+  }, []);
+
+  return { data, loading, error };
+};
+export const useAllDataUsers = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getusers = async () => {
+      try {
+        //const id = decodeTokenFromCookie().id;
+        const response = await axiosInstance.get(`${BASEURL}/getUsers`);
+        setData(response.data);
+      } catch (error) {
+        setError(error?.response?.status);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getusers();
+  }, []);
+
+  return { data, loading, error };
+};
 
 // export const useDataFetchingSingleProduct = (productid) => {
 //   const [data, setData] = useState(null)

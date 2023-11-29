@@ -50,29 +50,28 @@ const Login = () => {
       }
     } catch (error) {
       if (error) {
-        alert(error?.response?.data?.message);
+        alert(error?.response?.data?.message) || alert(error?.message);
       }
     }
   };
 
   useEffect(() => {
-    activateToken();
+    actcode && activateToken();
   }, []);
   const handlelogin = async (e) => {
     e.preventDefault();
 
     try {
       const response = await axiosInstance.post(`/login`, loginValues);
-      if (response.status === 200) {
+      if (response?.status === 200) {
         nav("/");
         setToken(response?.data?.token);
       }
     } catch (error) {
-      console.log(error);
-      let logs = error.response.data.errors;
+      let logs = error?.response?.data?.errors;
       logs?.forEach((error) => {
-        alert(`${error.field}: ${error.message}`);
-      }) || alert(error.response.data.message);
+        alert(`${error?.field}: ${error?.message}`);
+      }) || alert(error?.response?.data?.message);
     }
   };
   return (

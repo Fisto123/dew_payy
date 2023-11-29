@@ -171,7 +171,61 @@ export const getOrgUsers = async (req, res, next) => {
     next(error);
   }
 };
+export const getAllUsers = async (req, res, next) => {
+  let ownerspermission = req.user.roles.includes("product_owner");
+  let corporatepermission = req.user.roles.includes("corporate_owner");
 
+  try {
+    if (!corporatepermission && !ownerspermission) {
+      return res.status(403).json({ message: "permission denied" });
+    }
+
+    const users = ownerspermission
+      ? await User.findAll({
+          attributes: [
+            "organizationid",
+            "corporateidentitystatus",
+            "corporatedocumentinfostatus",
+            "corporatecontactstatus",
+            "companyname",
+            "createdAt",
+          ],
+        })
+      : null;
+
+    return res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// export const getAllUsers = async (req, res, next) => {
+//   let ownerspermission = req.user.roles.includes("product_owner");
+//   let corporatepermission = req.user.roles.includes("corporate_owner");
+
+//   try {
+//     if (!corporatepermission && !ownerspermission) {
+//       return res.status(403).json({ message: "permission denied" });
+//     }
+
+//     const users = ownerspermission
+//       ? await User.findAll({
+//           attributes: [
+//             "corporateidentitystatus",
+//             "firstname",
+//             "surname",
+//             "corporatedocumentinfostatus",
+//             "corporatecontactstatus",
+//             "createdAt",
+//           ],
+//         })
+//       : null;
+
+//     return res.status(200).json(users);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 export const editUser = async (req, res, next) => {
   const { surname, firstname, email, roles, department } = req.body;
 

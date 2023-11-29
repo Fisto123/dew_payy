@@ -3,6 +3,8 @@ import Department from "./views/pages/department-management/Department";
 import UserManagement from "./views/pages/user-management/UserManagement";
 import BillerManagement from "./views/pages/biller-management/BillerManagement";
 import TerminalManagement from "./views/pages/terminal-management/TerminalManagement";
+import CorporateSettings from "./views/pages/corporate-settings/CorporateSettings";
+import CorporateManagement from "./views/pages/corporate-management/CorporateManagement";
 
 const Dashboard = React.lazy(() => import("./views/dashboard/Dashboard"));
 const Colors = React.lazy(() => import("./views/theme/colors/Colors"));
@@ -94,6 +96,16 @@ const routes = [
     element: UserManagement,
   },
   {
+    path: "/corporate-management",
+    name: "corporate-management",
+    element: CorporateManagement,
+  },
+  {
+    path: "/corporate-management/corporate/:orgid",
+    name: "corporate-management",
+    element: CorporateSettings,
+  },
+  {
     path: "/terminal-management",
     name: "terminal-management",
     element: TerminalManagement,
@@ -108,6 +120,12 @@ const routes = [
     path: "/user-management",
     name: "user-management",
     element: UserManagement,
+  },
+
+  {
+    path: "/corporate",
+    name: "corporate",
+    element: CorporateSettings,
   },
   { path: "/theme", name: "Theme", element: Colors, exact: true },
   { path: "/theme/colors", name: "Colors", element: Colors },

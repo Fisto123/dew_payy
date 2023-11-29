@@ -18,7 +18,12 @@ const _nav = [
     to: "/dashboard",
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
-
+  {
+    component: CNavItem,
+    name: "CORPORATE MANAGEMENT",
+    to: "/corporate-management",
+    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
+  },
   {
     component: CNavItem,
     name: "CORPORATE SETTINGS",

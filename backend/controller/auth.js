@@ -3,7 +3,6 @@ const User = db.user;
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/token.js";
 import { hasPermission } from "../utils/permission.js";
-import { Sequelize } from "sequelize";
 
 export const registerCorporate = async (req, res, next) => {
   const activationCode = req.activationCode;
@@ -133,31 +132,76 @@ export const activateUser = async (req, res, next) => {
   }
 };
 
-export const updateCorporateIdentity = async (req, res, next) => {
-  const { RCNo, CAC, utility } = req.body;
-  const { organizationid } = req.params;
+// export const updateCorporateIdentity = async (req, res, next) => {
+//   console.log(req.file.path);
+//   const { RCNo, CAC, utility, status } = req.body;
+//   console.log(RCNo, CAC, utility);
 
+//   let { orgid } = req.params;
+
+//   try {
+//     await User.update(
+//       {
+//         corporatedocumentinfo: {
+//           RCNo,
+//           CAC,
+//           utility,
+//         },
+//         corporatedocumentinfostatus: status,
+//       },
+//       { where: { organizationid: orgid } }
+//     );
+//     return res.status(200).json({ message: "updated successfully" });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+export const updateCorporateIdentity = async (req, res, next) => {
   try {
-    let update = await User.update(
+    // Use a Promise to properly await the completion of the upload middleware
+    await new Promise((resolve, reject) => {
+      upload(req, res, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
+    });
+
+    // Access uploaded files
+    const CACImage = req.files.cac && req.files.cac[0]?.filename;
+    const utilityImage = req.files.utility && req.files.utility[0]?.filename;
+    console.log(req.files.utility[0]?.filename, req.files.cac[0]?.filename);
+    // Access other data from the request
+    const { orgid } = req.params;
+    const { RCNo, status } = req.body;
+    console.log(status);
+    // Update the user data in the database
+    await User.update(
       {
         corporatedocumentinfo: {
           RCNo,
-          CAC,
-          utility,
+          utility: utilityImage,
+          CAC: CACImage,
         },
+        corporatedocumentinfostatus: status,
       },
-      { where: { organizationid } }
+      { where: { organizationid: orgid } }
     );
-    return res.status(200).json({ message: "updated successfully" });
+
+    return res.status(200).json({ message: "Updated successfully" });
   } catch (error) {
+    console.error("Error:", error);
     next(error);
   }
 };
 
 export const updateCorporateInformation = async (req, res, next) => {
-  const { companyname, address1, address2, city, zipcode, state } = req.body;
-  const { organizationid } = req.params;
-
+  const { companyname, address1, address2, city, zipcode, state, status } =
+    req.body;
+  console.log(status);
+  let { orgid } = req.params;
   try {
     let update = await User.update(
       {
@@ -169,21 +213,40 @@ export const updateCorporateInformation = async (req, res, next) => {
           zipcode,
           state,
         },
+        corporateidentitystatus: status,
       },
-      { where: { organizationid } }
+      { where: { organizationid: orgid } }
     );
-    return res.status(200).json({ message: "updated successfully" });
+    return res
+      .status(200)
+      .json({ message: "corporate information updated successfully" });
   } catch (error) {
     next(error);
   }
 };
-
-export const updatecorporatecontact = async (req, res, next) => {
-  const { phone, email, fullname, idcard } = req.body;
-  const { organizationid } = req.params;
-
+export const changeCorporateInformationstatus = async (req, res, next) => {
+  let { orgid } = req.params;
+  let { status } = req.body;
+  console.log(status);
   try {
     let update = await User.update(
+      {
+        corporateidentitystatus: status,
+      },
+      { where: { organizationid: orgid } }
+    );
+    return res
+      .status(200)
+      .json({ message: "corporate information updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+export const updatecorporatecontact = async (req, res, next) => {
+  const { phone, email, fullname, idcard } = req.body;
+
+  try {
+    await User.update(
       {
         corporatecontact: {
           phone,
@@ -191,8 +254,9 @@ export const updatecorporatecontact = async (req, res, next) => {
           fullname,
           idcard,
         },
+        corporateidentitystatus: "pending",
       },
-      { where: { organizationid } }
+      { where: { organizationid: req.user.orgid } }
     );
     return res.status(200).json({ message: "updated successfully" });
   } catch (error) {
@@ -339,4 +403,15 @@ export const activateUserRole = async (req, res, next) => {
     next(error);
     return res.status(500).json({ message: "Error updating users." });
   }
+};
+
+export const getUserById = async (req, res) => {
+  let { orgid } = req.params;
+  try {
+    const user = await User.findOne({
+      where: { organizationid: orgid },
+    });
+
+    return res.status(200).json(user);
+  } catch (error) {}
 };
