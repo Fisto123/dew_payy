@@ -72,9 +72,9 @@ const CorporateManagementTable = () => {
       case "pending":
         return "#FFD700";
       case "approved":
-        return "#00FF00";
+        return "#006400";
       case "rejected":
-        return "#FF0000";
+        return "red";
       default:
         return "#007BFF";
     }
@@ -148,7 +148,7 @@ const CorporateManagementTable = () => {
                   width: "80%",
                   textAlign: "center",
                   color: "white",
-                  backgroundColor: getBadge(item.corporateidentitystatus),
+                  backgroundColor: getBadge(item.corporatecontactstatus),
                 }}>
                 {item.corporatecontactstatus}
               </Button>
@@ -156,7 +156,10 @@ const CorporateManagementTable = () => {
           ),
           date: (item) => (
             <td>
-              <h8>{item?.createdAt}</h8>
+              <h8>
+                {" "}
+                {moment(item.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
+              </h8>
             </td>
           ),
         }}

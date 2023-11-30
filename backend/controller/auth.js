@@ -243,21 +243,23 @@ export const changeCorporateInformationstatus = async (req, res, next) => {
   }
 };
 export const updatecorporatecontact = async (req, res, next) => {
-  const { phone, email, fullname, idcard } = req.body;
-
+  const { forms, status } = req.body;
+  let { orgid } = req.params;
+  const formArray = forms?.map((data) => ({
+    phone: data?.phone,
+    email: data?.email,
+    name: data?.name,
+    address: data?.address,
+  }));
   try {
     await User.update(
       {
-        corporatecontact: {
-          phone,
-          email,
-          fullname,
-          idcard,
-        },
-        corporateidentitystatus: "pending",
+        corporatecontact: formArray,
+        corporatecontactstatus: status,
       },
-      { where: { organizationid: req.user.orgid } }
+      { where: { organizationid: orgid } }
     );
+
     return res.status(200).json({ message: "updated successfully" });
   } catch (error) {
     next(error);

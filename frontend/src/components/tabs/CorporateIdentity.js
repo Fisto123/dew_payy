@@ -78,7 +78,7 @@ const CorporateInformation = () => {
 
         if (response.status === 200) {
           alert(response?.data?.message);
-          // window.location.reload();
+          window.location.reload();
         }
       } catch (error) {
         let logs = error?.response?.data?.errors;
@@ -180,7 +180,6 @@ const CorporateInformation = () => {
             <CFormSelect
               onChange={handleChange}
               id="validationTooltip04"
-              value={details?.status}
               required
               name="status">
               <option selected disabled>

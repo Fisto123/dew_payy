@@ -129,7 +129,7 @@ routes.patch(
   auth,
   updateCorporateInformation
 );
-routes.patch("/updatecorporatecontact/:organizationid", updatecorporatecontact);
+routes.patch("/updatecorporatecontact/:orgid", updatecorporatecontact);
 
 //USER
 routes.post("/adduser", emailVerificationMiddlewareUserAdmin, auth, addUser);

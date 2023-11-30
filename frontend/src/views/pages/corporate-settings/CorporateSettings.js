@@ -54,7 +54,6 @@ export default function CorporateSettings() {
 
   let realorgid = ownerspermission ? orgid : info?.orgid;
   const { data } = useDataUser(realorgid);
-  console.log(data);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -64,16 +63,15 @@ export default function CorporateSettings() {
       case "pending":
         return "#FFD700";
       case "approved":
-        return "#00FF00";
+        return "#006400";
       case "rejected":
         return "red";
       case "not_submitted":
         return "none";
       default:
-        return "transparent";
+        return "gray";
     }
   };
-  console.log(data);
   return (
     <>
       <div className="d-flex  justify-content-end "></div>
@@ -84,49 +82,47 @@ export default function CorporateSettings() {
             onChange={handleChange}
             aria-label="basic tabs example">
             <Tab
-              label="CORPORATE INFORMATION"
-              style={{ flex: 1, maxWidth: "50%" }}
+              label={`CORPORATE INFORMATION (${renderText(
+                data?.corporateidentitystatus
+              )})`}
+              style={{
+                flex: 1,
+                maxWidth: "50%",
+                background: getBadge(data?.corporateidentitystatus),
+                color: "white",
+              }}
               {...a11yProps(0)}
             />
-            <CButton
-              style={{
-                marginTop: "10px",
-                background: getBadge(data?.corporateidentitystatus),
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontSize: "0.9rem",
-                margin: 3,
-                border: "none",
-              }}>
-              {renderText(data?.corporateidentitystatus)}
-            </CButton>
-            <Tab
-              label="CORPORATE IDENTITY VAIDATION"
-              style={{ flex: 1, maxWidth: "50%" }}
-              {...a11yProps(1)}
-            />
-            <CButton
-              style={{
-                marginTop: "10px",
-                background: getBadge(data?.corporatedocumentinfostatus),
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontSize: "0.9rem",
-                border: "none",
-                margin: 3,
-                border: "none",
-              }}>
-              {renderText(data?.corporatedocumentinfostatus)}
-            </CButton>
 
             <Tab
-              label="CORPORATE CONTACT"
-              style={{ flex: 1, maxWidth: "50%" }}
+              label={`CORPORATE IDENTITY VAIDATION (${renderText(
+                data?.corporatedocumentinfostatus
+              )})`}
+              style={{
+                flex: 1,
+                maxWidth: "50%",
+                background: getBadge(data?.corporatedocumentinfostatus),
+                marginLeft: "5px",
+                color: "white",
+              }}
+              {...a11yProps(1)}
+            />
+
+            <Tab
+              label={`CORPORATE CONTACT (${renderText(
+                data?.corporatecontactstatus
+              )})`}
+              style={{
+                flex: 1,
+                maxWidth: "50%",
+                background: getBadge(data?.corporatecontactstatus),
+                color: "white",
+                marginLeft: "4px",
+                border: "none",
+              }}
               {...a11yProps(2)}
             />
-            <CButton
+            {/* <CButton
               style={{
                 marginTop: "10px",
                 background: "transparent",
@@ -138,7 +134,7 @@ export default function CorporateSettings() {
                 margin: 3,
               }}>
               {renderText(data?.corporatecontactstatus)}
-            </CButton>
+            </CButton> */}
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
