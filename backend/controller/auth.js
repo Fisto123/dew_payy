@@ -176,8 +176,23 @@ export const updateCorporateIdentity = async (req, res, next) => {
     // Access other data from the request
     const { orgid } = req.params;
     const { RCNo, status } = req.body;
-    console.log(status);
-    // Update the user data in the database
+
+    const user = await User.findOne({
+      where: {
+        organizationid: orgid,
+      },
+    });
+    console.log("stat", status);
+
+    console.log("corporateidentitystatus:", user.corporateidentitystatus);
+    console.log("corporatecontactstatus:", user.corporatecontactstatus);
+    const isVerifiedOrgStatus =
+      status === "approved" &&
+      user.corporateidentitystatus === "approved" &&
+      user.corporatecontactstatus === "approved";
+
+    console.log("isVerifiedOrgStatus:", isVerifiedOrgStatus);
+
     await User.update(
       {
         corporatedocumentinfo: {
@@ -186,6 +201,7 @@ export const updateCorporateIdentity = async (req, res, next) => {
           CAC: CACImage,
         },
         corporatedocumentinfostatus: status,
+        verifiedorgstatus: isVerifiedOrgStatus,
       },
       { where: { organizationid: orgid } }
     );
@@ -200,8 +216,23 @@ export const updateCorporateIdentity = async (req, res, next) => {
 export const updateCorporateInformation = async (req, res, next) => {
   const { companyname, address1, address2, city, zipcode, state, status } =
     req.body;
-  console.log(status);
+
   let { orgid } = req.params;
+
+  let ownerspermission = req.user.roles.includes("product_owner");
+
+  const user = await User.findOne({
+    where: {
+      organizationid: orgid,
+    },
+  });
+  const isVerifiedOrgStatus =
+    status === "approved" &&
+    user.corporatedocumentinfostatus === "approved" &&
+    user.corporatecontactstatus === "approved";
+  console.log("corporateidentitystatus:", user.corporateidentitystatus);
+  console.log("corporatecontactstatus:", user.corporatecontactstatus);
+  console.log("isVerifiedOrgStatus:", isVerifiedOrgStatus);
   try {
     let update = await User.update(
       {
@@ -214,6 +245,7 @@ export const updateCorporateInformation = async (req, res, next) => {
           state,
         },
         corporateidentitystatus: status,
+        verifiedorgstatus: isVerifiedOrgStatus,
       },
       { where: { organizationid: orgid } }
     );
@@ -245,17 +277,34 @@ export const changeCorporateInformationstatus = async (req, res, next) => {
 export const updatecorporatecontact = async (req, res, next) => {
   const { forms, status } = req.body;
   let { orgid } = req.params;
+
+  const user = await User.findOne({
+    where: {
+      organizationid: orgid,
+    },
+  });
+  // console.log(
+  //   user.corporateidentitystatus,
+  //   ownerspermission,
+  //   user.corporatedocumentinfostatus
+  // );
   const formArray = forms?.map((data) => ({
     phone: data?.phone,
     email: data?.email,
     name: data?.name,
     address: data?.address,
   }));
+  const isVerifiedOrgStatus =
+    status === "approved" &&
+    user.corporateidentitystatus === "approved" &&
+    user.corporatedocumentinfostatus === "approved";
+
   try {
     await User.update(
       {
         corporatecontact: formArray,
         corporatecontactstatus: status,
+        verifiedorgstatus: isVerifiedOrgStatus,
       },
       { where: { organizationid: orgid } }
     );

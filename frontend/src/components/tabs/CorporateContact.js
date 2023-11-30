@@ -23,6 +23,7 @@ const CorporateContact = () => {
   console.log(statuses);
   let realorgid = ownerspermission ? orgid : info?.orgid;
   const { data } = useDataUser(realorgid);
+  console.log(orgid);
 
   const [forms, setForms] = useState([initialFormState]);
 
@@ -62,7 +63,7 @@ const CorporateContact = () => {
       prevValidations.filter((_, i) => i !== index)
     );
   };
-  console.log(data);
+  console.log(statuses);
   const handleSubmit = async (event) => {
     const form = event.currentTarget;
     event.preventDefault();
@@ -183,24 +184,28 @@ const CorporateContact = () => {
                 </CButton>
               )}
             </div>
-            <div style={{ marginTop: 4 }}>
-              {index === forms.length - 1 && (
-                <CButton
-                  style={{ backgroundColor: "red", border: "none" }}
-                  onClick={() => removeForm(index)}>
-                  Remove Form
-                </CButton>
-              )}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}>
-              {index === forms.length - 1 && (
-                <CButton onClick={addForm}>Add Form</CButton>
-              )}
-            </div>
+            {data?.corporatecontactstatus !== "approved" && (
+              <div style={{ marginTop: 4 }}>
+                {index === forms.length - 1 && (
+                  <CButton
+                    style={{ backgroundColor: "red", border: "none" }}
+                    onClick={() => removeForm(index)}>
+                    Remove Form
+                  </CButton>
+                )}
+              </div>
+            )}
+            {data?.corporatecontactstatus !== "approved" && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}>
+                {index === forms.length - 1 && (
+                  <CButton onClick={addForm}>Add Form</CButton>
+                )}
+              </div>
+            )}
           </CForm>
         </CContainer>
       ))}

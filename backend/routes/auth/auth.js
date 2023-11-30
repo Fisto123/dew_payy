@@ -92,6 +92,15 @@ routes.patch(
           ? baseURL + CACImage
           : existingUser?.corporatedocumentinfo?.CAC;
 
+        const user = await User.findOne({
+          where: {
+            organizationid: orgid,
+          },
+        });
+        const isVerifiedOrgStatus =
+          status === "approved" &&
+          user.corporateidentitystatus === "approved" &&
+          user.corporatecontactstatus === "approved";
         const updateFields = {
           corporatedocumentinfo: {
             RCNo,
@@ -99,8 +108,8 @@ routes.patch(
             CAC: fullCACPath,
           },
           corporatedocumentinfostatus: status,
+          verifiedorgstatus: isVerifiedOrgStatus,
         };
-
         await User.update(updateFields, {
           where: { organizationid: orgid },
         });
@@ -129,7 +138,7 @@ routes.patch(
   auth,
   updateCorporateInformation
 );
-routes.patch("/updatecorporatecontact/:orgid", updatecorporatecontact);
+routes.patch("/updatecorporatecontact/:orgid", auth, updatecorporatecontact);
 
 //USER
 routes.post("/adduser", emailVerificationMiddlewareUserAdmin, auth, addUser);

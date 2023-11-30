@@ -187,7 +187,7 @@ const BillerCodeManagement = () => {
           status: (item) => (
             <td>
               <CButton
-                style={{ width: "80%", textAlign: "center" }}
+                style={{ width: "100%", textAlign: "center", color: "white" }}
                 color={getBadge(item.active)}>
                 {item.active ? "active" : "inactive"}
               </CButton>
