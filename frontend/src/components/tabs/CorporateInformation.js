@@ -18,9 +18,7 @@ const CorporateInformation = () => {
   const [validated, setValidated] = useState(false);
   const { orgid } = useParams();
   let info = decodeTokenFromStorage();
-
   let ownerspermission = info?.roles.includes("product_owner");
-
   let realorgid = ownerspermission ? orgid : info?.orgid;
   const { data } = useDataUser(realorgid);
 

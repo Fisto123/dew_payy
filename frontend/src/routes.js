@@ -5,6 +5,7 @@ import BillerManagement from "./views/pages/biller-management/BillerManagement";
 import TerminalManagement from "./views/pages/terminal-management/TerminalManagement";
 import CorporateSettings from "./views/pages/corporate-settings/CorporateSettings";
 import CorporateManagement from "./views/pages/corporate-management/CorporateManagement";
+import Transactions from "./views/pages/transaction/Transactions";
 
 const Dashboard = React.lazy(() => import("./views/dashboard/Dashboard"));
 const Colors = React.lazy(() => import("./views/theme/colors/Colors"));
@@ -126,6 +127,11 @@ const routes = [
     path: "/corporate",
     name: "corporate",
     element: CorporateSettings,
+  },
+  {
+    path: "/transactions",
+    name: "transaction",
+    element: Transactions,
   },
   { path: "/theme", name: "Theme", element: Colors, exact: true },
   { path: "/theme/colors", name: "Colors", element: Colors },

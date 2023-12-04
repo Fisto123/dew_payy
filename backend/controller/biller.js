@@ -190,3 +190,14 @@ export const editBiller = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getBillCode = async (req, res) => {
+  let { orgid, billcode } = req.params;
+  try {
+    let bill = await Biller.findOne({
+      where: { billcode, organizationid: orgid },
+      attributes: ["billerid", "amount"],
+    });
+    return res.status(200).send(bill);
+  } catch (error) {}
+};

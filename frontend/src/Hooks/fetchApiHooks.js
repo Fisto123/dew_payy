@@ -203,106 +203,122 @@ export const useAllDataUsers = () => {
 
   return { data, loading, error };
 };
+export const useAllBillCode = (billcode, orgid) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  console.log(1, billcode, 2, orgid);
 
-// export const useDataFetchingSingleProduct = (productid) => {
-//   const [data, setData] = useState(null)
-//   const [loading, setLoading] = useState(true)
-//   const [error, setError] = useState(null)
-//   const nav = useNavigate()
+  useEffect(() => {
+    const getBill = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `${BASEURL}/getbill/${orgid}/${billcode}`
+        );
+        console.log(response);
+        setData(response.data);
+      } catch (error) {
+        console.log(error);
+        setError(error?.response?.status);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//   useEffect(() => {
-//     const fetchProducts = async () => {
-//       try {
-//         const response = await axios.get(`${getSingleProductEndpoint}/${productid}`)
-//         setData(response.data)
-//       } catch (error) {
-//         setError(error?.response?.status)
+    getBill();
+  }, [billcode, orgid]);
 
-//         if (error) {
-//           nav('/notfound')
-//         }
-//       } finally {
-//         setLoading(false)
-//       }
-//     }
+  return { data, loading, error };
+};
+export const useGetInvoices = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const getinvoices = async () => {
+      try {
+        //const id = decodeTokenFromCookie().id;
+        const response = await axiosInstance.get(`${BASEURL}/getInvoices`);
+        setData(response.data);
+      } catch (error) {
+        setError(error?.response?.status);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//     fetchProducts()
-//   }, [productid])
+    getinvoices();
+  }, []);
 
-//   return { data, loading, error }
-// }
+  return { data, loading, error };
+};
+export const useGetInvoice = (invoiceid) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const getinvoices = async () => {
+      try {
+        //const id = decodeTokenFromCookie().id;
+        const response = await axiosInstance.get(
+          `${BASEURL}/getInvoice/${invoiceid}`
+        );
+        setData(response.data);
+      } catch (error) {
+        setError(error?.response?.status);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-// export const useDataDeletingSingleProduct = (productid) => {
-//   const [data, setData] = useState(null)
-//   const [loading, setLoading] = useState(true)
-//   const [error, setError] = useState(null)
-//   const nav = useNavigate()
+    getinvoices();
+  }, [invoiceid]);
 
-//   useEffect(() => {
-//     const deleteProduct = async () => {
-//       try {
-//         const response = await axiosInstance.delete(`${deleteProductEndpoint}/${productid}`)
-//         setData(response.data)
-//       } catch (error) {
-//         setError(error?.response?.status)
-//       } finally {
-//         setLoading(false)
-//       }
-//     }
+  return { data, loading, error };
+};
 
-//     deleteProduct()
-//   }, [productid])
+export const useGetPaymentsAnalytics = () => {
+  const [amount, setAmount] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const getPaymentsAnalyticals = async () => {
+      try {
+        //const id = decodeTokenFromCookie().id;
+        const response = await axiosInstance.get(`${BASEURL}/getprofit`);
+        setAmount(response?.data?.profit);
+      } catch (error) {
+        setError(error?.response?.status);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//   return { data, loading, error }
-// }
+    getPaymentsAnalyticals();
+  }, []);
 
-// //transactions
-// export const useDataFetchingUserTransaction = () => {
-//   const [data, setData] = useState(null)
-//   const [loading, setLoading] = useState(true)
-//   const [error, setError] = useState(null)
-//   const nav = useNavigate()
+  return { amount, loading, error };
+};
 
-//   useEffect(() => {
-//     const fetchTransactions = async () => {
-//       try {
-//         //const id = decodeTokenFromCookie().id;
-//         const response = await axiosInstance.get(`${getUsersTransactionEndpoint}`)
-//         setData(response.data)
-//       } catch (error) {
-//         setError(error?.response?.status)
-//       } finally {
-//         setLoading(false)
-//       }
-//     }
+export const useGetPendingPayments = () => {
+  const [pendingamount, setPendingamount] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const getPaymentsAnalyticals = async () => {
+      try {
+        //const id = decodeTokenFromCookie().id;
+        const response = await axiosInstance.get(`${BASEURL}/getpendingprofit`);
+        setPendingamount(response?.data?.profit);
+      } catch (error) {
+        setError(error?.response?.status);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//     fetchTransactions()
-//   }, [])
+    getPaymentsAnalyticals();
+  }, []);
 
-//   return { data, loading, error }
-// }
-
-// export const useDataSingleTransaction = (transactionid) => {
-//   const [data, setData] = useState(null)
-//   const [loading, setLoading] = useState(true)
-//   const [error, setError] = useState(null)
-//   const nav = useNavigate()
-
-//   useEffect(() => {
-//     const getTransaction = async () => {
-//       try {
-//         const response = await axiosInstance.get(`${getSingleTransactionEndpoint}/${transactionid}`)
-//         setData(response.data)
-//       } catch (error) {
-//         setError(error?.response?.status)
-//         error?.response?.status === 404 && nav('/notfound')
-//       } finally {
-//         setLoading(false)
-//       }
-//     }
-
-//     getTransaction()
-//   }, [transactionid])
-
-//   return { data, loading, error }
-// }
+  return { pendingamount, loading, error };
+};

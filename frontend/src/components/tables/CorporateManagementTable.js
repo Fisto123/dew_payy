@@ -157,7 +157,6 @@ const CorporateManagementTable = () => {
           date: (item) => (
             <td>
               <h8>
-                {" "}
                 {moment(item.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
               </h8>
             </td>

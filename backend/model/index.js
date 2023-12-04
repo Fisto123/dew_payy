@@ -95,6 +95,6 @@ db.invoice.hasMany(db.payment, {
 });
 db.payment.belongsTo(db.invoice, {
   foreignKey: "invoiceid",
-  as: "invoice",
+  as: "invoices",
 });
 export default db;

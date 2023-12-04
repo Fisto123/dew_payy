@@ -1,13 +1,10 @@
 import express from "express";
-import {
-  makeFullPayment,
-  makePartialPayment,
-} from "../../controller/payment.js";
+import { auth } from "../../utils/verify.js";
+import { getPendingPayment, getProfit } from "../../controller/payment.js";
 const routes = express.Router({
   mergeParams: true,
 });
-
-routes.post("/makefullpayment/:invoiceid", makeFullPayment);
-routes.post("/makepartpayment/:invoiceid", makePartialPayment);
+routes.get("/getprofit", auth, getProfit);
+routes.get("/getpendingprofit", auth, getPendingPayment);
 
 export default routes;
